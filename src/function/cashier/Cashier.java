@@ -10,8 +10,8 @@ public class Cashier {
         this.storage = storage;
     }
 
-    public int calculateCharge(int input) {
-        return storage.calculateCharge(input);
+    public int calcCharge(String inputCash, int totalPrice) {
+        return storage.calcCharge(inputCash, totalPrice);
     }
 
     public void checkCashAmount() {
