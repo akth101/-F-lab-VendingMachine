@@ -1,26 +1,26 @@
 package function.cashier;
+import java.util.Map;
+import java.util.HashMap;
 
-import storage.CashStorage;
+import payment.Payment;
+import payment.CashPayment;
 
 public class Cashier {
+    Map<String, Payment> paymentMethods;
 
-    private CashStorage storage;
-
-    //현재 구조로는 확장을 하게 되면 코드가 바뀌어야 된다 -> 유연성 X
-    public Cashier(CashStorage storage) {
-        this.storage = storage;
+    public Cashier() {
+        this.paymentMethods = new HashMap<>();
+        CashPayment cashPayment = new CashPayment();
+        this.paymentMethods.put(cashPayment.getPaymentType(), cashPayment);
     }
 
-    //카드의 경우에는 잔돈이 필요가 없다
-    public int calcCharge(String inputCash, int totalPrice) {
-        return storage.calcCharge(inputCash, totalPrice);
+    public void addPaymentMethod(Payment payment) {
+        paymentMethods.put(payment.getPaymentType(), payment);
     }
 
-    public void checkCashAmount() {
-        storage.checkCashAmount();
+    public Payment getPaymentMethod(String type) {
+        return paymentMethods.get(type);
     }
 
-    public void addCash(int amount) {
-        storage.addCash(amount);
-    }
+
 }

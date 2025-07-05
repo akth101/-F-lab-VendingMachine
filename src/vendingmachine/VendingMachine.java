@@ -2,10 +2,13 @@ package vendingmachine;
 
 import java.util.Scanner;
 import storage.ProductStorage;
-import storage.CashStorage;
 import function.cashier.Cashier;
 import function.productmanager.ProductManager;
 import model.product.Product;
+import payment.CreditCardPayment;
+import payment.MobilePayment;
+import payment.Payment;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -13,14 +16,12 @@ public class VendingMachine {
 
     final ProductManager productmanager;
     final Cashier cashier;
-    final CashStorage cashstorage;
     final ProductStorage productstorage;
 
     VendingMachine() {
-        cashstorage = new CashStorage();
         productstorage = new ProductStorage();
         productmanager = new ProductManager(productstorage);
-        cashier = new Cashier(cashstorage);
+        cashier = new Cashier();
     }
 
     public String[] parseInput(String input) {
@@ -66,44 +67,42 @@ public class VendingMachine {
     }
     
     public static void main(String[] args) {
-        // Scanner scanner = new Scanner(System.in);
-        // VendingMachine machine = new VendingMachine();
-
-        int[] a = new int[5];
-        List b = new ArrayList(5);
-        System.out.println(a[1]);
-        System.out.println(b.get(1));
+        Scanner scanner = new Scanner(System.in);
+        VendingMachine machine = new VendingMachine();
         
-        // while (true) {
-        //     machine.productmanager.printInventory();
-        //     System.out.println("usage: [inputCash] [productName] [productCnt]");
-        //     System.out.print("input: ");
-        //     String input = scanner.nextLine();
-            
-        //     if (input.trim().equals("exit"))
-        //         break;
-        //     try {
-        //             String[] parsed = machine.parseInput(input);
-        //             System.out.println("parse length: " + parsed.length);
-        //             if (parsed.length != 3) {
-        //                 if (parsed.length == 1 && parsed[0].equals("manage")) {
-        //                     machine.manageMachine(scanner);
-        //                 } else {
-        //                     System.out.println("Error: wrong parameters.");
-        //                 }
-        //                 continue;
-        //             }
+        machine.cashier.addPaymentMethod(new CreditCardPayment());
+        machine.cashier.addPaymentMethod(new MobilePayment());
+        
+        while (true) {
+            machine.productmanager.printInventory();
+            System.out.println("usage: [inputCash or paymentMethod] [productName] [productCnt]");
+            System.out.print("input: ");
+            String input = scanner.nextLine();
+
+            if (input.trim().equals("exit"))
+                break;
+            try {
+                    String[] parsed = machine.parseInput(input);
+                    if (parsed.length != 3) {
+                        if (parsed.length == 1 && parsed[0].equals("manage")) {
+                            machine.manageMachine(scanner);
+                        } else {
+                            System.out.println("Error: wrong parameters.");
+                        }
+                        continue;
+                    }
                     
-        //             //각각의 함수에서 파싱을 하고 있다. -> 파싱을 책임지는 메서드 하나 추가되면 개선될 수 있을 것 같다. 
-        //             int totalPrice = machine.productmanager.calcTotalPrice(parsed[1], parsed[2]);
-        //             machine.productmanager.dispenseProducts(parsed[0], parsed[1], parsed[2], totalPrice);
-        //             int charge = machine.cashier.calcCharge(parsed[0], totalPrice);
-        //             if (charge != -1)
-        //                 System.out.println("here is your charge: " + charge);
-        //     } catch (Exception e) {
-        //         System.out.println("Exception: " + e.getMessage());
-        //     }
-        // }
-        // scanner.close();
+                    //각각의 함수에서 파싱을 하고 있다. -> 파싱을 책임지는 메서드 하나 추가되면 개선될 수 있을 것 같다.
+
+                    int totalPrice = machine.productmanager.calcTotalPrice(parsed[1], parsed[2]);
+                    machine.productmanager.dispenseProducts(parsed[0], parsed[1], parsed[2], totalPrice);
+                    int charge = machine.cashier.calcCharge(parsed[0], totalPrice);
+                    if (charge != -1)
+                        System.out.println("here is your charge: " + charge);
+            } catch (Exception e) {
+                System.out.println("Exception: " + e.getMessage());
+            }
+        }
+        scanner.close();
     }
 }
