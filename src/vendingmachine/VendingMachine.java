@@ -2,10 +2,11 @@ package vendingmachine;
 
 import java.util.Scanner;
 import storage.ProductStorage;
-import storage.CashStorage;
 import function.cashier.Cashier;
 import function.productmanager.ProductManager;
 import model.product.Product;
+import payment.CashStorage;
+
 import java.util.List;
 import java.util.ArrayList;
 

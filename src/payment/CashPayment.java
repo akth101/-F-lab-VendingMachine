@@ -1,13 +1,28 @@
-package storage;
+package payment;
 
-public class CashStorage {
+public class CashPayment implements Payment {
     private int amount;
     private final int MAX_AMOUNT;
+    public final String type;
 
 
-    public CashStorage() {
+    public CashPayment() {
         this.amount = 100000;
         this.MAX_AMOUNT = 3000000;
+        this.type = "현금";
+    }
+
+    @Override
+    public boolean canPay(int productPrice) {
+        if (this.amount < productPrice) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public String getPaymentType() {
+        return this.type;
     }
 
     public int calcCharge(String input, int productPrice) {
