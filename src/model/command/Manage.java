@@ -33,14 +33,12 @@ public class Manage {
     
     public void initCommand(String input) throws InvalidCommandException, WrongParametersException, IllegalArgumentException {
         String[] parsed = parseInput(input);
-        
         if (parsed.length == 0) {
             throw new WrongParametersException("Warning: You did not enter any command.");
         }
         
         this.commandType = parsed[0];
-        
-        if (commandType.equals("product")) {
+        if (this.commandType.equals("product")) {
             if (parsed.length < 6 || parsed.length > 7) {
                 throw new WrongParametersException("Error: product command requires 6-7 parameters.");
             }
@@ -51,9 +49,9 @@ public class Manage {
                 this.productBrand = parsed[3];
                 this.productAmount = Integer.parseInt(parsed[4]);
                 this.slotNumber = Integer.parseInt(parsed[5]);
-                this.expirationDate = parsed.length == 7 ? parsed[6] : null;
+                this.expirationDate = parsed.length == 10 ? parsed[6] : null;
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Error: Invalid number format");
+                throw new IllegalArgumentException("Error: Invalid number format[manage]");
             }
             
         } else if (commandType.equals("cash")) {
@@ -64,7 +62,7 @@ public class Manage {
             try {
                 this.cashAmount = Integer.parseInt(parsed[1]);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Error: Invalid number format");
+                throw new IllegalArgumentException("Error: Invalid number format[cash]");
             }
             
         } else {
