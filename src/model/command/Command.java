@@ -32,6 +32,8 @@ public class Command {
     // String을 받아서 파싱하고 초기화
     public void initCommand(String input) throws ManageModeException, WrongParametersException, IllegalArgumentException {
         String[] parsed = parseInput(input);
+
+        validate();
         
         if (parsed.length != 3) {
             if (parsed.length == 1 && parsed[0].equals("manage")) {
@@ -44,9 +46,11 @@ public class Command {
         try {
             try {
                 this.inputCash = Integer.parseInt(parsed[0]); //parsed[0]가 숫자가 아니면 catch문으로 점프
+                this.paymentMethod = "cash";
                 this.productName = parsed[1];
                 this.productCnt = Integer.parseInt(parsed[2]);
             } catch (NumberFormatException e) {
+                this.inputCash = -1;
                 this.paymentMethod = parsed[0]; // parsed[0]가 숫자가 아니면 String인 paymentMethod로 취급
                 this.productName = parsed[1];
                 this.productCnt = Integer.parseInt(parsed[2]);
@@ -58,8 +62,8 @@ public class Command {
     
     // 유효성 검사 메서드
     public void validate() throws IllegalArgumentException {
-        if (inputCash < 0) {
-            throw new IllegalArgumentException("입력 금액은 0 이상이어야 합니다.");
+        if (inputCash <= 0) {
+            throw new IllegalArgumentException("입력 금액은 0 초과여야 합니다.");
         }
         if (productName == null || productName.trim().isEmpty()) {
             throw new IllegalArgumentException("상품명은 비어있을 수 없습니다.");

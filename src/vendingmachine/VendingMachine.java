@@ -9,6 +9,7 @@ import model.product.Product;
 import payment.CreditCardPayment;
 import payment.MobilePayment;
 import payment.Payment;
+import function.cashier.Cashier.InsufficientCashException;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -65,6 +66,7 @@ public class VendingMachine {
         Scanner scanner = new Scanner(System.in);
         VendingMachine machine = new VendingMachine();
         
+        //결제수단 추가 시 여기에 1줄만 추가하면 됨
         machine.cashier.addPaymentMethod(new CreditCardPayment());
         machine.cashier.addPaymentMethod(new MobilePayment());
         
@@ -85,19 +87,19 @@ public class VendingMachine {
                     machine.command.productName,
                     machine.command.productCnt
                 );
-                machine.productmanager.dispenseProducts(
-                    machine.command.inputCash,
-                    machine.command.productName,
-                    machine.command.productCnt,
+                machine.cashier.processPayment(
+                    machine.command,
                     totalPrice
                 );
-                String paymentInput = machine.command.paymentMethod != null ? machine.command.paymentMethod : String.valueOf(machine.command.inputCash);
-                int charge = machine.cashier.calcCharge(paymentInput, totalPrice);
-                if (charge != -1)
-                    System.out.println("here is your charge: " + charge);
+                machine.productmanager.dispenseProducts(
+                    machine.command.productName,
+                    machine.command.productCnt
+                );
             } catch (Command.ManageModeException e) { //자판기 매니저 모드 명령이 들어왔을 경우
                 machine.manageMachine(scanner);
             } catch (Command.WrongParametersException e) { //잘못된 갯수의 파라미터가 들어왔을 경우
+                System.out.println(e.getMessage());
+            } catch (InsufficientCashException e) { //현금이 부족한 경우
                 System.out.println(e.getMessage());
             } catch (Exception e) { // 그 외 혹시모를 모든 예외의 경우
                 System.out.println("Exception: " + e.getMessage());

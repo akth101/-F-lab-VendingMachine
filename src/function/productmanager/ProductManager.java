@@ -36,10 +36,7 @@ public class ProductManager {
         return storage.getProductPrice(productName) * productCnt;
     }
 
-    public void dispenseProducts(int inputCash, String productName, int productCnt, int totalPrice) {
-        if (inputCash < totalPrice) { // cashStorage에서 경고문 찍어주므로 여기서는 그냥 종료만 -> cashier & productmanager 의사소통 안됐을 때 어떻게?
-            return;
-        }
+    public void dispenseProducts(String productName, int productCnt) {
         if (storage.checkProductAmount(productName) >= productCnt) {
             for (int i = 0; i < productCnt; i++) {
                 ejectProduct(productName);
