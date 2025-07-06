@@ -33,7 +33,6 @@ public class Purchase {
     public void initCommand(String input) throws ManageModeException, WrongParametersException, IllegalArgumentException {
         String[] parsed = parseInput(input);
 
-        validate();
         
         if (parsed.length != 3) {
             if (parsed.length == 1 && parsed[0].equals("manage")) {
@@ -58,6 +57,7 @@ public class Purchase {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Error: Invalid number format");
         }
+        validate();
     }
     
     // 유효성 검사 메서드
