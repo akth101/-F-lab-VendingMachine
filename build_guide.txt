@@ -1,0 +1,12 @@
+루트 디렉토리여야 함
+
+컴파일
+# 클래스 파일들을 저장할 디렉토리 생성
+mkdir -p build
+
+# 메인 클래스만 컴파일 (javac가 의존성을 자동으로 찾아 컴파일)
+javac -d build -cp src src/vendingmachine/VendingMachine.java
+
+
+실행
+java -cp build vendingmachine.VendingMachine
