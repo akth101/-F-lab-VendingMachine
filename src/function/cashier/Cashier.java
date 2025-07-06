@@ -21,17 +21,17 @@ public class Cashier {
         this.paymentMethods.put(cashPayment.getPaymentType(), cashPayment);
     }
 
-    public void processPayment(Command command, int totalPrice) throws InsufficientCashException {
+    public void processPayment(Purchase command, int totalPrice) throws InsufficientCashException {
         if (command.inputCash == -1) { // 현금이 아닌 결제수단 사용
             Payment paymentMethod = getPaymentMethod(command.paymentMethod);
             if (paymentMethod != null) { // 신용카드나 모바일 결제는 항상 성공한다고 가정
-                System.out.println(paymentMethod.getPaymentType() + " 결제 완료");
+                System.out.println(paymentMethod.getPaymentType() + " payment completed");
             } else {
-                System.out.println("지원하지 않는 결제 수단입니다.");
+                System.out.println("Error: Unsupported payment method");
             }
         } else if (command.inputCash > 0) {
             if (command.inputCash < totalPrice) {
-                throw new InsufficientCashException("현금이 부족합니다");
+                throw new InsufficientCashException("Insufficient cash");
             }
             // 현금 결제
             CashPayment cashPayment = (CashPayment)getPaymentMethod("cash");
@@ -39,7 +39,7 @@ public class Cashier {
                 cashPayment.calcCharge(command.inputCash, totalPrice);
             }
         } else {
-            System.out.println("유효하지 않은 결제 정보입니다.");
+            System.out.println("Error: Invalid payment information");
         }
     }
 

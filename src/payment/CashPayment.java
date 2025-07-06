@@ -9,7 +9,7 @@ public class CashPayment implements Payment {
     public CashPayment() {
         this.amount = 100000;
         this.MAX_AMOUNT = 3000000;
-        this.type = "현금";
+        this.type = "cash";
     }
 
     @Override

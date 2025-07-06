@@ -1,6 +1,6 @@
 package model.command;
 
-public class Command {
+public class Purchase {
     public String paymentMethod;
     public int inputCash;
     public String productName;
@@ -19,7 +19,7 @@ public class Command {
         }
     }
     
-    public Command() {}
+    public Purchase() {}
     
     public String[] parseInput(String input) {
         if (input == null || input.trim().isEmpty()) {
@@ -56,20 +56,20 @@ public class Command {
                 this.productCnt = Integer.parseInt(parsed[2]);
             }
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("숫자 형식이 올바르지 않습니다.");
+            throw new IllegalArgumentException("Error: Invalid number format");
         }
     }
     
     // 유효성 검사 메서드
     public void validate() throws IllegalArgumentException {
         if (inputCash <= 0) {
-            throw new IllegalArgumentException("입력 금액은 0 초과여야 합니다.");
+            throw new IllegalArgumentException("Error: Input cash must be greater than 0");
         }
         if (productName == null || productName.trim().isEmpty()) {
-            throw new IllegalArgumentException("상품명은 비어있을 수 없습니다.");
+            throw new IllegalArgumentException("Error: Product name cannot be empty");
         }
         if (productCnt <= 0) {
-            throw new IllegalArgumentException("상품 개수는 1 이상이어야 합니다.");
+            throw new IllegalArgumentException("Error: Product count must be at least 1");
         }
     }
 }

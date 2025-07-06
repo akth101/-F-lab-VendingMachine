@@ -2,6 +2,7 @@ package function.productmanager;
 
 import storage.ProductStorage;
 import model.product.Product;
+import model.command.*;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -16,8 +17,14 @@ public class ProductManager {
         storage.ejectProduct(productName);
     }
 
-    public void supplyProduct(int slotNumber, Product product, int amount) {
-        storage.supplyProduct(slotNumber, product, amount);
+    public void supplyProduct(Manage manage) {
+        Product product = new Product(
+            manage.productName,
+            manage.productPrice,
+            manage.productBrand,
+            manage.expirationDate
+        );
+        storage.supplyProduct(manage.slotNumber, product, manage.productAmount);
     }
 
     public void checkProduct(String productName) {
