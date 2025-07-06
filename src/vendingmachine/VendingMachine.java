@@ -4,6 +4,7 @@ import java.util.Scanner;
 import storage.ProductStorage;
 import function.cashier.Cashier;
 import function.productmanager.ProductManager;
+import model.command.Command;
 import model.product.Product;
 import payment.CreditCardPayment;
 import payment.MobilePayment;
@@ -17,19 +18,13 @@ public class VendingMachine {
     final ProductManager productmanager;
     final Cashier cashier;
     final ProductStorage productstorage;
+    final Command command;
 
     VendingMachine() {
         productstorage = new ProductStorage();
         productmanager = new ProductManager(productstorage);
         cashier = new Cashier();
-    }
-
-    public String[] parseInput(String input) {
-        if (input == null || input.trim().isEmpty()) {
-            return new String[0];
-        }
-        
-        return input.trim().split("\\s+"); // 공백으로 분할(연속된 공백도 처리)
+        command = new Command();
     }
 
     public void manageMachine(Scanner scanner) {
@@ -44,7 +39,7 @@ public class VendingMachine {
                 System.out.println("[Switched to user mode]");
                 break;
             }
-            String[] parsed = parseInput(input);
+            String[] parsed = command.parseInput(input);
             if (parsed.length == 0) {
                 System.out.println("Warning: You did not enter any command.");
                 continue;
@@ -82,24 +77,29 @@ public class VendingMachine {
             if (input.trim().equals("exit"))
                 break;
             try {
-                    String[] parsed = machine.parseInput(input);
-                    if (parsed.length != 3) {
-                        if (parsed.length == 1 && parsed[0].equals("manage")) {
-                            machine.manageMachine(scanner);
-                        } else {
-                            System.out.println("Error: wrong parameters.");
-                        }
-                        continue;
-                    }
-                    
-                    //각각의 함수에서 파싱을 하고 있다. -> 파싱을 책임지는 메서드 하나 추가되면 개선될 수 있을 것 같다.
-
-                    int totalPrice = machine.productmanager.calcTotalPrice(parsed[1], parsed[2]);
-                    machine.productmanager.dispenseProducts(parsed[0], parsed[1], parsed[2], totalPrice);
-                    int charge = machine.cashier.calcCharge(parsed[0], totalPrice);
-                    if (charge != -1)
-                        System.out.println("here is your charge: " + charge);
-            } catch (Exception e) {
+                //명령어 파싱
+                machine.command.initCommand(input);
+                
+                // 자판기 정상 동작 흐름
+                int totalPrice = machine.productmanager.calcTotalPrice(
+                    machine.command.productName,
+                    machine.command.productCnt
+                );
+                machine.productmanager.dispenseProducts(
+                    machine.command.inputCash,
+                    machine.command.productName,
+                    machine.command.productCnt,
+                    totalPrice
+                );
+                String paymentInput = machine.command.paymentMethod != null ? machine.command.paymentMethod : String.valueOf(machine.command.inputCash);
+                int charge = machine.cashier.calcCharge(paymentInput, totalPrice);
+                if (charge != -1)
+                    System.out.println("here is your charge: " + charge);
+            } catch (Command.ManageModeException e) { //자판기 매니저 모드 명령이 들어왔을 경우
+                machine.manageMachine(scanner);
+            } catch (Command.WrongParametersException e) { //잘못된 갯수의 파라미터가 들어왔을 경우
+                System.out.println(e.getMessage());
+            } catch (Exception e) { // 그 외 혹시모를 모든 예외의 경우
                 System.out.println("Exception: " + e.getMessage());
             }
         }

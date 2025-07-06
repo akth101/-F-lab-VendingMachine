@@ -28,23 +28,20 @@ public class ProductManager {
         storage.printInventory();
     }
 
-    public int calcTotalPrice(String productName, String cnt) {
-        int count = Integer.parseInt(cnt);
+    public int calcTotalPrice(String productName, int productCnt) {
         if (storage.checkProductAmount(productName) == 0) {
             System.out.println("Warning: There is no product in the machine.");
             return 0;
         }
-        return storage.getProductPrice(productName) * count;
+        return storage.getProductPrice(productName) * productCnt;
     }
 
-    public void dispenseProducts(String inputCash, String productName, String cnt, int totalPrice) {
-        int input = Integer.parseInt(inputCash);
-        int count = Integer.parseInt(cnt);
-        if (input < totalPrice) { // cashStorage에서 경고문 찍어주므로 여기서는 그냥 종료만 -> cashier & productmanager 의사소통 안됐을 때 어떻게?
+    public void dispenseProducts(int inputCash, String productName, int productCnt, int totalPrice) {
+        if (inputCash < totalPrice) { // cashStorage에서 경고문 찍어주므로 여기서는 그냥 종료만 -> cashier & productmanager 의사소통 안됐을 때 어떻게?
             return;
         }
-        if (storage.checkProductAmount(productName) >= count) {
-            for (int i = 0; i < count; i++) {
+        if (storage.checkProductAmount(productName) >= productCnt) {
+            for (int i = 0; i < productCnt; i++) {
                 ejectProduct(productName);
             }
         }
