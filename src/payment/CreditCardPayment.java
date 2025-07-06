@@ -5,7 +5,7 @@ public class CreditCardPayment implements Payment {
 
 
     public CreditCardPayment() {
-        this.type = "credit card";
+        this.type = "creditCard";
     }
 
     @Override
