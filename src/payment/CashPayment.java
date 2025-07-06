@@ -9,7 +9,7 @@ public class CashPayment implements Payment {
     public CashPayment() {
         this.amount = 100000;
         this.MAX_AMOUNT = 3000000;
-        this.type = "현금";
+        this.type = "cash";
     }
 
     @Override
@@ -25,18 +25,17 @@ public class CashPayment implements Payment {
         return this.type;
     }
 
-    public int calcCharge(String input, int productPrice) {
-
-        int inputCash = Integer.parseInt(input);
+    public void calcCharge(int inputCash, int productPrice) {
         if (inputCash < productPrice) { //주문한 상품 가격보다 투입 금액이 적을 때
             System.out.println("Warning: Not enough input cash.");
-            return -1;
+            return;
         }
         else if (this.amount < inputCash - productPrice) { //거슬러줄 잔액이 부족할 때
             System.out.println("Warning: Not enough cash in the machine.");
+            return;
         }
         this.amount -= (inputCash - productPrice);
-        return (inputCash - productPrice);
+        System.out.println("here is your charge: " + (inputCash - productPrice));
     }
 
     public void addCash(int cash) {

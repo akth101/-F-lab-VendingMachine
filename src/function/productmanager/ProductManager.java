@@ -2,6 +2,7 @@ package function.productmanager;
 
 import storage.ProductStorage;
 import model.product.Product;
+import model.command.*;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -16,8 +17,14 @@ public class ProductManager {
         storage.ejectProduct(productName);
     }
 
-    public void supplyProduct(int slotNumber, Product product, int amount) {
-        storage.supplyProduct(slotNumber, product, amount);
+    public void supplyProduct(Manage manage) {
+        Product product = new Product(
+            manage.productName,
+            manage.productPrice,
+            manage.productBrand,
+            manage.expirationDate
+        );
+        storage.supplyProduct(manage.slotNumber, product, manage.productAmount);
     }
 
     public void checkProduct(String productName) {
@@ -28,23 +35,17 @@ public class ProductManager {
         storage.printInventory();
     }
 
-    public int calcTotalPrice(String productName, String cnt) {
-        int count = Integer.parseInt(cnt);
+    public int calcTotalPrice(String productName, int productCnt) {
         if (storage.checkProductAmount(productName) == 0) {
             System.out.println("Warning: There is no product in the machine.");
             return 0;
         }
-        return storage.getProductPrice(productName) * count;
+        return storage.getProductPrice(productName) * productCnt;
     }
 
-    public void dispenseProducts(String inputCash, String productName, String cnt, int totalPrice) {
-        int input = Integer.parseInt(inputCash);
-        int count = Integer.parseInt(cnt);
-        if (input < totalPrice) { // cashStorage에서 경고문 찍어주므로 여기서는 그냥 종료만 -> cashier & productmanager 의사소통 안됐을 때 어떻게?
-            return;
-        }
-        if (storage.checkProductAmount(productName) >= count) {
-            for (int i = 0; i < count; i++) {
+    public void dispenseProducts(String productName, int productCnt) {
+        if (storage.checkProductAmount(productName) >= productCnt) {
+            for (int i = 0; i < productCnt; i++) {
                 ejectProduct(productName);
             }
         }

@@ -5,7 +5,7 @@ public class MobilePayment implements Payment {
 
 
     public MobilePayment() {
-        this.type = "모바일";
+        this.type = "mobile";
     }
 
     @Override

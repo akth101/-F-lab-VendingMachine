@@ -4,32 +4,24 @@ import java.util.Scanner;
 import storage.ProductStorage;
 import function.cashier.Cashier;
 import function.productmanager.ProductManager;
-import model.product.Product;
-import payment.CreditCardPayment;
-import payment.MobilePayment;
-import payment.Payment;
-
-import java.util.List;
-import java.util.ArrayList;
+import model.command.*;
+import payment.*;
+import function.cashier.Cashier.InsufficientCashException;
 
 public class VendingMachine {
 
     final ProductManager productmanager;
     final Cashier cashier;
     final ProductStorage productstorage;
+    final Purchase purchase;
+    final Manage manage;
 
     VendingMachine() {
         productstorage = new ProductStorage();
         productmanager = new ProductManager(productstorage);
         cashier = new Cashier();
-    }
-
-    public String[] parseInput(String input) {
-        if (input == null || input.trim().isEmpty()) {
-            return new String[0];
-        }
-        
-        return input.trim().split("\\s+"); // 공백으로 분할(연속된 공백도 처리)
+        purchase = new Purchase();
+        manage = new Manage();
     }
 
     public void manageMachine(Scanner scanner) {
@@ -44,24 +36,17 @@ public class VendingMachine {
                 System.out.println("[Switched to user mode]");
                 break;
             }
-            String[] parsed = parseInput(input);
-            if (parsed.length == 0) {
-                System.out.println("Warning: You did not enter any command.");
-                continue;
-            }
-            //상품 추가 시
-            if (parsed[0].equals("product") && parsed.length >= 6 && parsed.length <= 7) {
-                Product product = new Product(
-                    parsed[1], // name
-                    Integer.parseInt(parsed[2]), // price  
-                    parsed[3], // brand
-                    parsed.length == 6 ? parsed[5] : null // expirationDate
-                );
-                productmanager.supplyProduct(Integer.parseInt(parsed[5]), product, Integer.parseInt(parsed[4])); //product & amount
-            }
-            //잔돈 추가 시
-            if (parsed[0].equals("cash") && parsed.length == 2) {
-                cashier.addCash(Integer.parseInt(parsed[1]));
+            try {
+                manage.initCommand(input);
+                if (manage.commandType.equals("manage")) { //상품 추가 시
+                    productmanager.supplyProduct(manage);
+                }
+                else if (manage.commandType.equals("cash")) { //잔돈 추가 시
+                    CashPayment cashPayment = (CashPayment)cashier.getPaymentMethod("cash");
+                    cashPayment.addCash(manage.cashAmount);
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
             }
         }
     }
@@ -70,6 +55,7 @@ public class VendingMachine {
         Scanner scanner = new Scanner(System.in);
         VendingMachine machine = new VendingMachine();
         
+        //결제수단 추가 시 여기에 1줄만 추가하면 됨
         machine.cashier.addPaymentMethod(new CreditCardPayment());
         machine.cashier.addPaymentMethod(new MobilePayment());
         
@@ -82,25 +68,30 @@ public class VendingMachine {
             if (input.trim().equals("exit"))
                 break;
             try {
-                    String[] parsed = machine.parseInput(input);
-                    if (parsed.length != 3) {
-                        if (parsed.length == 1 && parsed[0].equals("manage")) {
-                            machine.manageMachine(scanner);
-                        } else {
-                            System.out.println("Error: wrong parameters.");
-                        }
-                        continue;
-                    }
-                    
-                    //각각의 함수에서 파싱을 하고 있다. -> 파싱을 책임지는 메서드 하나 추가되면 개선될 수 있을 것 같다.
-
-                    int totalPrice = machine.productmanager.calcTotalPrice(parsed[1], parsed[2]);
-                    machine.productmanager.dispenseProducts(parsed[0], parsed[1], parsed[2], totalPrice);
-                    int charge = machine.cashier.calcCharge(parsed[0], totalPrice);
-                    if (charge != -1)
-                        System.out.println("here is your charge: " + charge);
-            } catch (Exception e) {
-                System.out.println("Exception: " + e.getMessage());
+                //명령어 파싱
+                machine.purchase.initCommand(input);
+                
+                // 자판기 정상 동작 흐름
+                int totalPrice = machine.productmanager.calcTotalPrice(
+                    machine.purchase.productName,
+                    machine.purchase.productCnt
+                );
+                machine.cashier.processPayment(
+                    machine.purchase,
+                    totalPrice
+                );
+                machine.productmanager.dispenseProducts(
+                    machine.purchase.productName,
+                    machine.purchase.productCnt
+                );
+            } catch (Purchase.ManageModeException e) { //자판기 매니저 모드 명령이 들어왔을 경우
+                machine.manageMachine(scanner);
+            } catch (Purchase.WrongParametersException e) { //잘못된 갯수의 파라미터가 들어왔을 경우
+                System.out.println(e.getMessage());
+            } catch (InsufficientCashException e) { //현금이 부족한 경우
+                System.out.println(e.getMessage());
+            } catch (Exception e) { // 그 외 혹시모를 모든 예외의 경우
+                System.out.println("Error: " + e.getMessage());
             }
         }
         scanner.close();
