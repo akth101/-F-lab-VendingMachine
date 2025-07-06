@@ -62,7 +62,7 @@ public class Purchase {
     
     // 유효성 검사 메서드
     public void validate() throws IllegalArgumentException {
-        if (inputCash <= 0) {
+        if (this.paymentMethod == "cash" && this.inputCash <= 0) {
             throw new IllegalArgumentException("Error: Input cash must be greater than 0");
         }
         if (productName == null || productName.trim().isEmpty()) {
