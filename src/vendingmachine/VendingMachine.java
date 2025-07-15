@@ -38,7 +38,7 @@ public class VendingMachine {
             }
             try {
                 manage.initCommand(input);
-                if (manage.commandType.equals("manage")) { //상품 추가 시
+                if (manage.commandType.equals("product")) { //상품 추가 시
                     productmanager.supplyProduct(manage);
                 }
                 else if (manage.commandType.equals("cash")) { //잔돈 추가 시
@@ -46,7 +46,7 @@ public class VendingMachine {
                     cashPayment.addCash(manage.cashAmount);
                 }
             } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -91,7 +91,7 @@ public class VendingMachine {
             } catch (InsufficientCashException e) { //현금이 부족한 경우
                 System.out.println(e.getMessage());
             } catch (Exception e) { // 그 외 혹시모를 모든 예외의 경우
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(e.getMessage());
             }
         }
         scanner.close();
